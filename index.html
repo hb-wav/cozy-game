@@ -1,874 +1,162 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Holly + Bailey — Cozy Question Game</title>
-  <style>
-    :root{
-      --bg1:#fff7fb;
-      --bg2:#fffef6;
-      --card:#ffffffd6;
-      --ink:#2b2b2b;
-      --muted:#6b6b6b;
-      --accent:#ff6fae;
-      --accent2:#ffb84d;
-      --mint:#2bb673;
-      --shadow: 0 12px 34px rgba(0,0,0,.08);
-      --radius: 24px;
-    }
-    *{ box-sizing:border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--ink);
-      min-height:100svh;
-      background:
-        radial-gradient(900px 600px at 10% 10%, var(--bg2), transparent 60%),
-        radial-gradient(900px 600px at 90% 30%, #ffe3f1, transparent 55%),
-        radial-gradient(900px 600px at 40% 90%, #fff1d6, transparent 55%),
-        linear-gradient(180deg, var(--bg1), #ffffff);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:18px;
-      overflow-x:hidden;
-    }
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Cozy Question Game</title>
 
-    /* subtle drifting glow */
-    .bg-drift{
-      position: fixed;
-      inset: -120px;
-      pointer-events:none;
-      opacity:.55;
-      filter: blur(40px);
-      background:
-        radial-gradient(circle at 20% 25%, rgba(255,111,174,.35), transparent 35%),
-        radial-gradient(circle at 75% 30%, rgba(255,184,77,.35), transparent 35%),
-        radial-gradient(circle at 45% 80%, rgba(43,182,115,.22), transparent 40%);
-      animation: drift 14s ease-in-out infinite alternate;
-    }
-    @keyframes drift{
-      from{ transform: translate3d(-10px, -6px, 0) scale(1); }
-      to{ transform: translate3d(12px, 10px, 0) scale(1.03); }
-    }
+<style>
+:root{
+  --bg1:#fff7fb;
+  --bg2:#fffef6;
+  --card:#ffffffd6;
+  --ink:#2b2b2b;
+  --muted:#6b6b6b;
+  --accent:#ff6fae;
+  --accent2:#ffb84d;
+  --mint:#2bb673;
+  --radius:24px;
+  --shadow:0 12px 34px rgba(0,0,0,.08);
+}
 
-    .app{
-      width:min(560px, 100%);
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      position:relative;
-      z-index:1;
-    }
+body{
+  margin:0;
+  font-family: ui-rounded, system-ui;
+  background:linear-gradient(180deg,var(--bg1),#fff);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:16px;
+}
 
-    .topbar{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 12px;
-      background:var(--card);
-      border:1px solid rgba(255,111,174,.22);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    .title{
-      display:flex; flex-direction:column; gap:2px;
-      line-height:1.1;
-    }
-    .title .h1{
-      font-weight:950;
-      letter-spacing:.2px;
-      font-size:14px;
-    }
-    .title .sub{
-      font-size:12px;
-      color:var(--muted);
-    }
+.app{width:100%;max-width:520px;display:flex;flex-direction:column;gap:14px;}
 
-    .pillrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
-    .pill{
-      border:1px solid rgba(0,0,0,.08);
-      background:#fff;
-      color:var(--ink);
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
-      display:flex; gap:6px; align-items:center;
-      box-shadow: 0 6px 14px rgba(0,0,0,.05);
-    }
-    .pill strong{ font-weight:950; }
+.topbar,.card,.footer{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+}
 
-    .card{
-      background:var(--card);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:18px;
-      backdrop-filter: blur(10px);
-      position:relative;
-      overflow:hidden;
-    }
+.topbar{display:flex;justify-content:space-between;align-items:center;}
 
-    /* candle mascot */
-    .mascot{
-      position:absolute;
-      top:12px;
-      right:12px;
-      width:72px;
-      height:72px;
-      border-radius:22px;
-      background:#fff;
-      border:1px solid rgba(0,0,0,.07);
-      box-shadow: 0 10px 22px rgba(0,0,0,.08);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      user-select:none;
-    }
-    .mascot-inner{
-      width:56px; height:56px;
-      position:relative;
-      transform-origin:center;
-      animation: idleBob 2.9s ease-in-out infinite;
-    }
-    @keyframes idleBob{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-3px); }
-    }
-    .candle{
-      position:absolute;
-      left:50%;
-      bottom:8px;
-      transform: translateX(-50%);
-      width:30px;
-      height:30px;
-      border-radius:12px 12px 14px 14px;
-      background: linear-gradient(180deg, #ffffff, #ffe8f3);
-      border:1px solid rgba(0,0,0,.08);
-      box-shadow: inset 0 -6px 10px rgba(0,0,0,.04);
-    }
-    .candle:before{
-      content:"";
-      position:absolute;
-      left:50%;
-      top:-8px;
-      transform: translateX(-50%);
-      width:8px;
-      height:10px;
-      border-radius:6px;
-      background: rgba(0,0,0,.12);
-      filter: blur(.2px);
-    }
-    .face{
-      position:absolute;
-      left:50%;
-      top:10px;
-      transform: translateX(-50%);
-      width:22px;
-      height:14px;
-    }
-    .eye{
-      position:absolute;
-      top:2px;
-      width:4px; height:4px;
-      border-radius:999px;
-      background: rgba(0,0,0,.55);
-    }
-    .eye.left{ left:4px; }
-    .eye.right{ right:4px; }
-    .mouth{
-      position:absolute;
-      left:50%;
-      bottom:0px;
-      transform: translateX(-50%);
-      width:10px;
-      height:6px;
-      border:2px solid rgba(0,0,0,.55);
-      border-top:0;
-      border-left:0;
-      border-right:0;
-      border-radius:0 0 10px 10px;
-      opacity:.9;
-    }
-    .blush{
-      position:absolute;
-      top:6px;
-      width:7px; height:5px;
-      border-radius:999px;
-      background: rgba(255,111,174,.35);
-      filter: blur(.1px);
-      opacity:0;
-      transition: opacity .18s ease;
-    }
-    .blush.left{ left:-2px; }
-    .blush.right{ right:-2px; }
+.score{background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:900;}
 
-    .flame{
-      position:absolute;
-      left:50%;
-      bottom:40px;
-      transform: translateX(-50%);
-      width:18px;
-      height:26px;
-      border-radius: 999px 999px 999px 999px;
-      background: radial-gradient(circle at 35% 35%, #fff6d6 0 35%, #ffd27a 40% 70%, #ff99c8 71% 100%);
-      box-shadow: 0 0 16px rgba(255,184,77,.55);
-      animation: flameFlicker 1.1s ease-in-out infinite;
-      transform-origin: 50% 100%;
-    }
-    @keyframes flameFlicker{
-      0%,100%{ transform: translateX(-50%) rotate(-2deg) scale(1); }
-      50%{ transform: translateX(-50%) rotate(2deg) scale(1.03); }
-    }
+.card{position:relative;overflow:hidden;}
 
-    /* mascot moods */
-    .mascot.deep .flame{ box-shadow: 0 0 18px rgba(43,182,115,.35); filter: saturate(.95); }
-    .mascot.flirty .blush{ opacity: 1; }
-    .mascot.light .flame{ box-shadow: 0 0 16px rgba(255,184,77,.55); }
-    .mascot.spicy .flame{ filter: saturate(1.2) contrast(1.05); box-shadow: 0 0 22px rgba(255,111,174,.55); }
-    .mascot.pop .mascot-inner{ animation: pop 260ms ease-out 1; }
-    @keyframes pop{
-      0%{ transform: translateY(0) scale(1); }
-      60%{ transform: translateY(-2px) scale(1.06); }
-      100%{ transform: translateY(0) scale(1); }
-    }
+.mascot{
+  position:absolute;
+  top:10px;right:10px;
+  width:64px;height:64px;
+  border-radius:18px;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 18px rgba(0,0,0,.1);
+}
 
-    .kicker{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:10px;
-      padding-right:84px; /* make room for mascot */
-    }
-    .badge{
-      display:inline-flex; align-items:center; gap:6px;
-      font-weight:950;
-      font-size:12px;
-      padding:7px 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid rgba(255,111,174,.22);
-    }
-    .badge .dot{
-      width:10px; height:10px; border-radius:50%;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      box-shadow:0 0 0 4px rgba(255,111,174,.12);
-    }
-    .points{
-      font-weight:950;
-      font-size:12px;
-      padding:7px 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid rgba(0,0,0,.08);
-    }
+.flame{
+  width:14px;height:20px;
+  border-radius:999px;
+  background:radial-gradient(circle at 40% 30%,#fff,#ffb84d,#ff6fae);
+  box-shadow:0 0 8px rgba(255,184,77,.35);
+  animation:flicker 1s infinite alternate;
+}
 
-    .qtext{
-      font-size:22px;
-      font-weight:950;
-      letter-spacing:.2px;
-      line-height:1.2;
-      margin: 8px 0 10px;
-    }
-    .preface{
-      font-size:12px;
-      color:var(--muted);
-      margin-top:2px;
-      line-height:1.35;
-    }
+@keyframes flicker{
+  from{transform:scale(1);}
+  to{transform:scale(1.05);}
+}
 
-    .meta{
-      display:flex; gap:8px; flex-wrap:wrap;
-      color:var(--muted);
-      font-size:12px;
-      margin:12px 0 14px;
-    }
-    .tag{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px dashed rgba(0,0,0,.15);
-      background:#fff;
-    }
+.qtext{font-size:22px;font-weight:900;margin:12px 0;}
 
-    .btnrow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:6px;
-    }
-    button{
-      appearance:none;
-      border:0;
-      cursor:pointer;
-      border-radius:20px;
-      padding:14px 12px;
-      font-weight:950;
-      font-size:14px;
-      box-shadow: 0 10px 20px rgba(0,0,0,.08);
-      transition: transform .06s ease, filter .06s ease;
-    }
-    button:active{ transform: translateY(1px) scale(.99); filter: brightness(.98); }
-    .btnH{
-      background: linear-gradient(135deg, #ff6fae, #ff99c8);
-      color:#fff;
-    }
-    .btnB{
-      background: linear-gradient(135deg, #ffb84d, #ffd27a);
-      color:#2b2b2b;
-    }
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+button{
+  border:0;border-radius:18px;padding:12px;font-weight:900;
+  box-shadow:0 6px 14px rgba(0,0,0,.1);
+}
 
-    .controls{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    .ghost{
-      background:#fff;
-      border:1px solid rgba(0,0,0,.10);
-      color:var(--ink);
-    }
-    .next{
-      background: linear-gradient(135deg, #2bb673, #75d39b);
-      color:#fff;
-    }
+.btnH{background:#ff6fae;color:white;}
+.btnB{background:#ffb84d;}
 
-    .footer{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 12px;
-      background:var(--card);
-      border:1px solid rgba(0,0,0,.06);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-    .toggle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-size:12px;
-      color:var(--muted);
-      user-select:none;
-    }
-    .switch{
-      width:46px; height:28px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid rgba(0,0,0,.12);
-      position:relative;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,.06);
-      cursor:pointer;
-      flex:0 0 auto;
-    }
-    .knob{
-      position:absolute;
-      top:3px; left:3px;
-      width:22px; height:22px;
-      border-radius:999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      transition:left .16s ease;
-      box-shadow:0 8px 16px rgba(0,0,0,.12);
-    }
-    .switch.on .knob{ left:21px; }
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
+.next{background:#2bb673;color:white;}
 
-    .tiny{
-      font-size:11px;
-      color:var(--muted);
-      line-height:1.35;
-    }
-    .danger{
-      color:#b00020;
-      font-weight:900;
-      text-decoration:underline;
-      cursor:pointer;
-    }
-
-    /* cute heart pops */
-    .poplayer{
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      overflow:hidden;
-    }
-    .heartpop{
-      position:absolute;
-      font-size:18px;
-      opacity:0;
-      transform: translate(-50%, -50%) scale(.8);
-      animation: popFloat 700ms ease-out forwards;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.08));
-    }
-    @keyframes popFloat{
-      0%{ opacity:0; transform: translate(-50%, -50%) scale(.8); }
-      20%{ opacity:1; transform: translate(-50%, -56%) scale(1.08); }
-      100%{ opacity:0; transform: translate(-50%, -86%) scale(.95); }
-    }
-  </style>
+.pop{position:absolute;font-size:20px;animation:float 0.8s forwards;}
+@keyframes float{
+  from{opacity:1;transform:translateY(0);}
+  to{opacity:0;transform:translateY(-40px);}
+}
+</style>
 </head>
+
 <body>
-  <div class="bg-drift"></div>
-
-  <div class="app">
-    <div class="topbar">
-      <div class="title">
-        <div class="h1">🕯️ Cozy Question Game</div>
-        <div class="sub">sweet • flirty • kind • tap to score</div>
-      </div>
-      <div class="pillrow">
-        <div class="pill">Holly: <strong id="scoreH">0</strong></div>
-        <div class="pill">Bailey: <strong id="scoreB">0</strong></div>
-      </div>
-    </div>
-
-    <div class="card" id="card">
-      <div class="poplayer" id="poplayer"></div>
-
-      <div class="mascot light" id="mascot" aria-hidden="true">
-        <div class="mascot-inner">
-          <div class="flame"></div>
-          <div class="candle">
-            <div class="face">
-              <div class="eye left"></div>
-              <div class="eye right"></div>
-              <div class="blush left"></div>
-              <div class="blush right"></div>
-              <div class="mouth"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="kicker">
-        <div class="badge"><span class="dot"></span> <span id="qIndex">Ready?</span></div>
-        <div class="points" id="pointsPill">—</div>
-      </div>
-
-      <div class="preface" id="preface">Little question, cozy vibes. 💗</div>
-      <div class="qtext" id="qText">Tap “Next” to start 💞</div>
-
-      <div class="meta" id="meta"></div>
-
-      <div class="btnrow">
-        <button class="btnH" id="addH">+ points to Holly ✨</button>
-        <button class="btnB" id="addB">+ points to Bailey ✨</button>
-      </div>
-
-      <div class="controls">
-        <button class="ghost" id="skip">Skip</button>
-        <button class="ghost" id="undo">Undo</button>
-        <button class="next" id="next">Next 🎴</button>
-      </div>
-
-      <div class="tiny" style="margin-top:10px;">
-        If something feels too heavy for the moment, skip it. The candle approves. 🕯️
-      </div>
-    </div>
-
-    <div class="footer">
-      <div class="toggle">
-        <div class="switch" id="spiceSwitch" role="switch" aria-checked="false" tabindex="0">
-          <div class="knob"></div>
-        </div>
-        <div>
-          <div><strong id="spiceLabel">Cozy Only</strong></div>
-          <div class="tiny">Toggle on = include everything 🔥</div>
-        </div>
-      </div>
-
-      <div class="tiny">
-        <span id="progress">0 / 0 used</span> ·
-        <span class="danger" id="resetAll">reset</span>
-      </div>
+<div class="app">
+  <div class="topbar">
+    <div>Cozy Question Game</div>
+    <div>
+      <span class="score">Holly: <span id="h">0</span></span>
+      <span class="score">Bailey: <span id="b">0</span></span>
     </div>
   </div>
 
-  <script>
-    // tags:
-    // - "spicy": sexual explicit (filtered out in Cozy Only)
-    // - "deep": heavier vulnerability (still allowed; you can skip anytime)
-    // - "light": playful/low-stakes
-    // - "flirty": sweet chemistry
-    const QUESTIONS = [
-      { q:"What’s your biggest pet peeve?", pts:5, tags:["light"] },
-      { q:"What was the worst date you’ve ever been on?", pts:10, tags:["light"] },
-      { q:"What’s your love language?", pts:5, tags:["light"] },
-      { q:"What do you think your most attractive feature is and why?", pts:10, tags:["flirty"] },
-      { q:"What does a good pace when dating look like for you?", pts:15, tags:["deep"] },
-      { q:"What was your longest relationship?", pts:10, tags:["deep"] },
-      { q:"Are you a morning person or night owl?", pts:2, tags:["light"] },
-      { q:"What’s one thing you want to accomplish this year?", pts:5, tags:["light"] },
-      { q:"If you could travel anywhere, where would you go?", pts:5, tags:["light"] },
-      { q:"What’s the best concert you’ve ever been to?", pts:5, tags:["light"] },
-      { q:"What’s the best piece of advice you ever received?", pts:10, tags:["deep"] },
-      { q:"Ass or titties?", pts:2, tags:["spicy"] },
-      { q:"What’s your biggest fear?", pts:10, tags:["deep"] },
-      { q:"Who’s someone you admire and why?", pts:5, tags:["deep"] },
-      { q:"What’s one celebrity you’d want to meet and why?", pts:5, tags:["light"] },
-      { q:"What are you naturally talented at?", pts:5, tags:["light"] },
-      { q:"If you could change careers, what would you choose?", pts:10, tags:["deep"] },
-      { q:"What’s your comfort show or movie?", pts:2, tags:["light"] },
-      { q:"How do you like to be cared for when you’re sick?", pts:10, tags:["deep"] },
-      { q:"If you could visit any time period, which and why?", pts:5, tags:["light"] },
-      { q:"How’s your driving?", pts:2, tags:["light"] },
-      { q:"Did you ever sneak out as a kid?", pts:5, tags:["light"] },
-      { q:"What’s a hard dealbreaker for you?", pts:15, tags:["deep"] },
-      { q:"What’s your worst habit?", pts:15, tags:["deep"] },
-      { q:"How would your friends describe you?", pts:10, tags:["deep"] },
-      { q:"How would you describe your sense of humor?", pts:10, tags:["light"] },
-      { q:"What are some things that make you angry?", pts:10, tags:["deep"] },
-      { q:"What is something that warms your heart?", pts:5, tags:["deep"] },
-      { q:"What’s the worst job you’ve ever had?", pts:5, tags:["light"] },
-      { q:"What’s one skill you want to learn?", pts:5, tags:["light"] },
-      { q:"If you could have any superpower, what would it be and why?", pts:2, tags:["light"] },
-      { q:"What’s your walk-up song?", pts:2, tags:["light"] },
-      { q:"What’s one song that speaks your truth?", pts:10, tags:["deep"] },
-      { q:"What do you find attractive?", pts:5, tags:["flirty"] },
-      { q:"What’s your ideal date night?", pts:10, tags:["flirty"] },
-      { q:"What’s your biggest secret?", pts:25, tags:["deep"] },
-      { q:"What’s your immediate skip song?", pts:2, tags:["light"] },
-      { q:"What’s your guilty pleasure?", pts:5, tags:["light"] },
-      { q:"City slicker or country bumpkin?", pts:2, tags:["light"] },
-      { q:"What’s your comfort food?", pts:5, tags:["light"] },
-      { q:"What’s your favorite restaurant or meal?", pts:5, tags:["light"] },
-      { q:"Top, bottom, or switch? Elaborate.", pts:15, tags:["spicy"] },
-      { q:"Do you like to drive or be a passenger?", pts:2, tags:["light"] },
-      { q:"Is there any food you hate?", pts:5, tags:["light"] },
-      { q:"Do you like road trips?", pts:2, tags:["light"] },
-      { q:"What does your ideal relationship look like?", pts:10, tags:["deep"] },
-      { q:"What do you find annoying?", pts:10, tags:["deep"] },
-      { q:"What’s the worst concert you’ve been to?", pts:5, tags:["light"] },
-      { q:"If you were an animal, what would you be and why?", pts:5, tags:["light"] },
-      { q:"What’s your most prized possession?", pts:10, tags:["deep"] },
-      { q:"Do you like to cuddle? Big spoon or little spoon?", pts:5, tags:["flirty"] },
-      { q:"How do you feel about PDA?", pts:5, tags:["flirty"] },
-      { q:"What does support look like for you?", pts:10, tags:["deep"] },
-      { q:"What’s one fun fact about you?", pts:5, tags:["light"] },
-      { q:"What’s the craziest injury you’ve had?", pts:10, tags:["light"] },
-      { q:"Favorite ice cream flavor?", pts:2, tags:["light"] },
-      { q:"Sweet or savory?", pts:2, tags:["light"] },
-      { q:"Best vacation you’ve taken?", pts:5, tags:["light"] },
-      { q:"Favorite memory?", pts:10, tags:["deep"] },
-      { q:"Gifts or experiences?", pts:2, tags:["light"] },
-      { q:"What are your most important values?", pts:15, tags:["deep"] },
-      { q:"Something you want to try but are scared to?", pts:10, tags:["deep"] },
-      { q:"What would your drag name be?", pts:2, tags:["light"] },
-      { q:"Do you like to be led or do you like to take charge?", pts:10, tags:["spicy"] },
-      { q:"What’s your best quality?", pts:5, tags:["deep"] },
-      { q:"One thing someone should know before dating you?", pts:15, tags:["deep"] },
-      { q:"Favorite sport / did you play growing up?", pts:2, tags:["light"] },
-      { q:"Have you met someone famous? Who and how?", pts:5, tags:["light"] },
-      { q:"Go-to porn category?", pts:25, tags:["spicy"] },
-      { q:"What stresses you out?", pts:15, tags:["deep"] },
-      { q:"Something you’re thankful for?", pts:10, tags:["deep"] },
-      { q:"What does a typical day look like?", pts:5, tags:["light"] },
-      { q:"Something you want to implement in your life?", pts:10, tags:["deep"] },
-      { q:"Who would you introduce first to someone you’re dating and why?", pts:10, tags:["deep"] },
-      { q:"Why did your last relationship end?", pts:25, tags:["deep"] },
-      { q:"Are you talking to anyone else?", pts:5, tags:["deep"] },
-      { q:"Best birthday you’ve had?", pts:10, tags:["light"] },
-      { q:"Beach or mountains?", pts:2, tags:["light"] },
-      { q:"Something super important to you?", pts:15, tags:["deep"] },
-      { q:"Most meaningful tattoo?", pts:5, tags:["deep"] },
-      { q:"Have you ever hit rock bottom before? What was it?", pts:25, tags:["deep"] },
-      { q:"One thing you’ve learned from life so far?", pts:15, tags:["deep"] },
-      { q:"Favorite conspiracy theory?", pts:2, tags:["light"] },
-      { q:"Celebrity crush?", pts:5, tags:["light"] },
-      { q:"One thing you’d tell your younger self?", pts:10, tags:["deep"] },
-      { q:"One thing you struggle with?", pts:15, tags:["deep"] },
-      { q:"If you had 3 wishes what would they be?", pts:10, tags:["light"] },
-      { q:"Favorite pick up line?", pts:2, tags:["flirty"] },
-      { q:"Biggest accomplishment?", pts:10, tags:["deep"] },
-      { q:"Most embarrassing moment?", pts:15, tags:["light"] },
-      { q:"What grosses you out?", pts:10, tags:["light"] },
-      { q:"If you were gifted a million dollars, what would you do with it?", pts:15, tags:["light"] },
-      { q:"One question you really want to ask me?", pts:15, tags:["deep"] },
-      { q:"Biggest turn on?", pts:15, tags:["spicy"] },
-      { q:"Biggest turn off?", pts:15, tags:["spicy"] },
-      { q:"Biggest unpopular opinion?", pts:10, tags:["light"] },
-      { q:"Who’s your favorite person in the world? Why?", pts:5, tags:["deep"] },
-      { q:"One thing you can’t live without?", pts:5, tags:["light"] },
-      { q:"Where do you see yourself in 5 years?", pts:15, tags:["deep"] },
-      { q:"What do you like most about me?", pts:15, tags:["flirty"] },
-    ];
+  <div class="card">
+    <div class="mascot"><div class="flame"></div></div>
+    <div class="qtext" id="q">Tap Next to start</div>
 
-    const LS_KEY = "cozy_question_game_v2_candle";
+    <div class="btnrow">
+      <button class="btnH" id="hBtn">+ Holly</button>
+      <button class="btnB" id="bBtn">+ Bailey</button>
+    </div>
 
-    const els = {
-      scoreH: document.getElementById("scoreH"),
-      scoreB: document.getElementById("scoreB"),
-      qIndex: document.getElementById("qIndex"),
-      qText: document.getElementById("qText"),
-      pointsPill: document.getElementById("pointsPill"),
-      meta: document.getElementById("meta"),
-      preface: document.getElementById("preface"),
-      addH: document.getElementById("addH"),
-      addB: document.getElementById("addB"),
-      next: document.getElementById("next"),
-      skip: document.getElementById("skip"),
-      undo: document.getElementById("undo"),
-      spiceSwitch: document.getElementById("spiceSwitch"),
-      spiceLabel: document.getElementById("spiceLabel"),
-      progress: document.getElementById("progress"),
-      resetAll: document.getElementById("resetAll"),
-      mascot: document.getElementById("mascot"),
-      poplayer: document.getElementById("poplayer"),
-    };
+    <div class="controls">
+      <button id="skip">Skip</button>
+      <button id="undo">Undo</button>
+      <button class="next" id="next">Next</button>
+    </div>
+  </div>
 
-    const defaultState = {
-      scoreH: 0,
-      scoreB: 0,
-      includeSpicy: false,
-      usedIds: [],
-      currentId: null,
-      lastAction: null, // { who:"H"/"B", pts:number, qId:number }
-    };
+  <div class="footer">
+    ⭐ Cozy mode only — spicy off
+  </div>
+</div>
 
-    let state = loadState();
+<script>
+const questions=[
+  ["What’s your love language?",5],
+  ["What’s your ideal date night?",10],
+  ["What do you find attractive?",5],
+  ["What’s something that warms your heart?",5],
+  ["Where do you see yourself in 5 years?",15],
+  ["What’s your comfort food?",5],
+  ["What’s your favorite memory?",10],
+];
 
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(LS_KEY);
-        if(!raw) return structuredClone(defaultState);
-        const parsed = JSON.parse(raw);
-        return { ...structuredClone(defaultState), ...parsed };
-      }catch{
-        return structuredClone(defaultState);
-      }
-    }
+let used=[];
+let current=null;
+let h=0,b=0;
 
-    function saveState(){
-      localStorage.setItem(LS_KEY, JSON.stringify(state));
-      renderScores();
-      renderProgress();
-    }
+function next(){
+  const remaining=questions.filter(q=>!used.includes(q));
+  if(!remaining.length){used=[];return next();}
+  current=remaining[Math.floor(Math.random()*remaining.length)];
+  used.push(current);
+  document.getElementById("q").textContent=current[0];
+}
 
-    function filteredQuestions(){
-      return QUESTIONS
-        .map((x, idx) => ({ ...x, id: idx }))
-        .filter(x => state.includeSpicy ? true : !x.tags.includes("spicy"));
-    }
+function pop(x){
+  const el=document.createElement("div");
+  el.textContent=Math.random()>0.5?"⭐":"✨";
+  el.className="pop";
+  el.style.left=x+"px";
+  el.style.top="120px";
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),800);
+}
 
-    function pickNext(){
-      const pool = filteredQuestions();
-      const used = new Set(state.usedIds);
-      const remaining = pool.filter(q => !used.has(q.id));
-
-      if(remaining.length === 0){
-        state.usedIds = [];
-        state.currentId = null;
-        state.lastAction = null;
-        saveState();
-        return pickNext();
-      }
-
-      const next = remaining[Math.floor(Math.random() * remaining.length)];
-      state.currentId = next.id;
-      state.usedIds.push(next.id);
-      state.lastAction = null;
-      saveState();
-      renderCard(true);
-    }
-
-    function currentQuestion(){
-      if(state.currentId === null) return null;
-      const q = QUESTIONS[state.currentId];
-      return { ...q, id: state.currentId };
-    }
-
-    function award(who){
-      const q = currentQuestion();
-      if(!q) return;
-      const pts = q.pts;
-
-      if(who === "H") state.scoreH += pts;
-      if(who === "B") state.scoreB += pts;
-
-      state.lastAction = { who, pts, qId: q.id };
-      saveState();
-
-      mascotPop();
-      heartPop(who);
-    }
-
-    function undo(){
-      const a = state.lastAction;
-      if(!a) return;
-      if(a.who === "H") state.scoreH = Math.max(0, state.scoreH - a.pts);
-      if(a.who === "B") state.scoreB = Math.max(0, state.scoreB - a.pts);
-      state.lastAction = null;
-      saveState();
-      heartPop("undo");
-    }
-
-    function renderScores(){
-      els.scoreH.textContent = state.scoreH;
-      els.scoreB.textContent = state.scoreB;
-    }
-
-    function renderProgress(){
-      const pool = filteredQuestions();
-      const used = state.usedIds.length;
-      els.progress.textContent = `${used} / ${pool.length} used`;
-    }
-
-    function renderSpice(){
-      els.spiceSwitch.classList.toggle("on", state.includeSpicy);
-      els.spiceSwitch.setAttribute("aria-checked", state.includeSpicy ? "true" : "false");
-      els.spiceLabel.textContent = state.includeSpicy ? "All Questions 🔥" : "Cozy Only";
-    }
-
-    function setMascotMood(tags){
-      els.mascot.classList.remove("light","flirty","deep","spicy");
-      // priority: spicy > deep > flirty > light
-      if(tags.includes("spicy")) els.mascot.classList.add("spicy");
-      else if(tags.includes("deep")) els.mascot.classList.add("deep");
-      else if(tags.includes("flirty")) els.mascot.classList.add("flirty");
-      else els.mascot.classList.add("light");
-    }
-
-    function prefaceFor(tags){
-      if(tags.includes("spicy")) return "Only if it’s the vibe. 🔥";
-      if(tags.includes("deep")) return "Slow is sexy. Take your time. 🫶";
-      if(tags.includes("flirty")) return "A little blush moment. 💘";
-      return "Keep it light and sweet. ✨";
-    }
-
-    function tagEmoji(t){
-      if(t === "flirty") return "💘";
-      if(t === "deep") return "🫶";
-      if(t === "light") return "✨";
-      if(t === "spicy") return "🔥";
-      return "🏷️";
-    }
-
-    function renderCard(isNext=false){
-      renderScores();
-      renderSpice();
-      renderProgress();
-
-      const q = currentQuestion();
-      if(!q){
-        els.qIndex.textContent = "Ready?";
-        els.pointsPill.textContent = "—";
-        els.preface.textContent = "Little question, cozy vibes. 💗";
-        els.qText.textContent = "Tap “Next” to start 💞";
-        els.meta.innerHTML = "";
-        els.addH.textContent = "+ points to Holly ✨";
-        els.addB.textContent = "+ points to Bailey ✨";
-        setMascotMood(["light"]);
-        return;
-      }
-
-      const pool = filteredQuestions();
-      const idxInPool = pool.findIndex(x => x.id === q.id);
-      els.qIndex.textContent = `💌 Card ${idxInPool + 1}`;
-      els.pointsPill.textContent = `${q.pts} pts`;
-      els.qText.textContent = q.q;
-
-      const tags = q.tags || [];
-      els.preface.textContent = prefaceFor(tags);
-      setMascotMood(tags);
-
-      els.meta.innerHTML = "";
-      tags.forEach(t => {
-        const span = document.createElement("span");
-        span.className = "tag";
-        span.textContent = `${tagEmoji(t)} ${t}`;
-        els.meta.appendChild(span);
-      });
-
-      els.addH.textContent = `+${q.pts} to Holly ✨`;
-      els.addB.textContent = `+${q.pts} to Bailey ✨`;
-
-      if(isNext){
-        mascotPop();
-        heartPop("next");
-      }
-    }
-
-    function mascotPop(){
-      els.mascot.classList.add("pop");
-      setTimeout(() => els.mascot.classList.remove("pop"), 280);
-    }
-
-    function heartPop(context){
-      const rect = els.poplayer.getBoundingClientRect();
-      const x = rect.width * (context === "H" ? 0.30 : context === "B" ? 0.70 : 0.50);
-      const y = rect.height * (context === "next" ? 0.24 : 0.34);
-
-      const choices = context === "undo"
-        ? ["✨","🫶","⭐"]
-        : context === "next"
-         ? ["🎴","✨","⭐"]
-          : ["✨","⭐","🕯️","🫶","🍕"];
-
-      const count = context === "next" ? 2 : 3;
-
-      for(let i=0;i<count;i++){
-        const el = document.createElement("div");
-        el.className = "heartpop";
-        el.textContent = choices[Math.floor(Math.random()*choices.length)];
-        const jitterX = (Math.random()*44 - 22);
-        const jitterY = (Math.random()*22 - 10);
-        el.style.left = (x + jitterX) + "px";
-        el.style.top = (y + jitterY) + "px";
-        el.style.animationDelay = (i*70) + "ms";
-        els.poplayer.appendChild(el);
-        setTimeout(() => el.remove(), 900);
-      }
-    }
-
-    function resetAll(){
-      const keepSpice = state.includeSpicy;
-      state = structuredClone(defaultState);
-      state.includeSpicy = keepSpice;
-      saveState();
-      renderCard();
-    }
-
-    function toggleSpicy(){
-      state.includeSpicy = !state.includeSpicy;
-      state.currentId = null;
-      state.usedIds = [];
-      state.lastAction = null;
-      saveState();
-      renderCard();
-      heartPop("next");
-      mascotPop();
-    }
-
-    // Events
-    els.next.addEventListener("click", pickNext);
-    els.skip.addEventListener("click", pickNext);
-    els.addH.addEventListener("click", () => award("H"));
-    els.addB.addEventListener("click", () => award("B"));
-    els.undo.addEventListener("click", undo);
-
-    els.spiceSwitch.addEventListener("click", toggleSpicy);
-    els.spiceSwitch.addEventListener("keydown", (e) => {
-      if(e.key === "Enter" || e.key === " "){
-        e.preventDefault();
-        toggleSpicy();
-      }
-    });
-
-    els.resetAll.addEventListener("click", () => {
-      const ok = confirm("Reset scores + progress? (You can’t undo this)");
-      if(ok) resetAll();
-    });
-
-    // Init
-    saveState();
-    renderCard();
-  </script>
+document.getElementById("next").onclick=()=>{next();pop(200);}
+document.getElementById("hBtn").onclick=()=>{if(current){h+=current[1];document.getElementById("h").textContent=h;pop(150);}}
+document.getElementById("bBtn").onclick=()=>{if(current){b+=current[1];document.getElementById("b").textContent=b;pop(300);}}
+</script>
 </body>
 </html>
