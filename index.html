@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Holly + Bailey — Question Game</title>
+  <style>
+    :root{
+      --bg1:#fff7fb;
+      --bg2:#fffef6;
+      --card:#ffffffcc;
+      --ink:#2b2b2b;
+      --muted:#6b6b6b;
+      --accent:#ff6fae;
+      --accent2:#ffb84d;
+      --good:#2bb673;
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --radius: 22px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      min-height:100svh;
+      background:
+        radial-gradient(900px 600px at 10% 10%, var(--bg2), transparent 60%),
+        radial-gradient(900px 600px at 90% 30%, #ffe3f1, transparent 55%),
+        radial-gradient(900px 600px at 40% 90%, #fff1d6, transparent 55%),
+        linear-gradient(180deg, var(--bg1), #ffffff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+
+    .app{
+      width:min(520px, 100%);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      background:var(--card);
+      border:1px solid rgba(255,111,174,.25);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .title{
+      display:flex; flex-direction:column; gap:2px;
+      line-height:1.1;
+    }
+    .title .h1{
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:14px;
+    }
+    .title .sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .pillrow{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill{
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      color:var(--ink);
+      border-radius:999px;
+      padding:8px 10px;
+      font-size:12px;
+      display:flex; gap:6px; align-items:center;
+      box-shadow: 0 6px 14px rgba(0,0,0,.05);
+    }
+    .pill strong{ font-weight:900; }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      backdrop-filter: blur(8px);
+      position:relative;
+      overflow:hidden;
+    }
+    .sparkle{
+      position:absolute;
+      inset:-40px -40px auto auto;
+      width:140px;
+      height:140px;
+      background: radial-gradient(circle at 30% 30%, rgba(255,111,174,.35), transparent 60%),
+                  radial-gradient(circle at 70% 70%, rgba(255,184,77,.35), transparent 60%);
+      transform: rotate(15deg);
+      filter: blur(2px);
+      pointer-events:none;
+    }
+    .kicker{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      font-weight:800;
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(255,111,174,.25);
+    }
+    .badge .dot{
+      width:10px; height:10px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow:0 0 0 4px rgba(255,111,174,.15);
+    }
+    .points{
+      font-weight:900;
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .qtext{
+      font-size:22px;
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1.2;
+      margin: 6px 0 12px;
+    }
+    .meta{
+      display:flex; gap:8px; flex-wrap:wrap;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:14px;
+    }
+    .tag{
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px dashed rgba(0,0,0,.15);
+      background:#fff;
+    }
+
+    .btnrow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+    button{
+      appearance:none;
+      border:0;
+      cursor:pointer;
+      border-radius:18px;
+      padding:14px 12px;
+      font-weight:900;
+      font-size:14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.08);
+      transition: transform .06s ease, filter .06s ease;
+    }
+    button:active{ transform: translateY(1px) scale(.99); filter: brightness(.98); }
+
+    .btnH{
+      background: linear-gradient(135deg, #ff6fae, #ff99c8);
+      color:#fff;
+    }
+    .btnB{
+      background: linear-gradient(135deg, #ffb84d, #ffd27a);
+      color:#2b2b2b;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .ghost{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.10);
+      color:var(--ink);
+    }
+    .next{
+      background: linear-gradient(135deg, #2bb673, #75d39b);
+      color:#fff;
+    }
+
+    .footer{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 12px;
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .toggle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:12px;
+      color:var(--muted);
+      user-select:none;
+    }
+    .switch{
+      width:46px; height:28px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid rgba(0,0,0,.12);
+      position:relative;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,.06);
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    .knob{
+      position:absolute;
+      top:3px; left:3px;
+      width:22px; height:22px;
+      border-radius:999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      transition:left .16s ease;
+      box-shadow:0 8px 16px rgba(0,0,0,.12);
+    }
+    .switch.on .knob{ left:21px; }
+
+    .tiny{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.35;
+    }
+    .danger{
+      color:#b00020;
+      font-weight:800;
+      text-decoration:underline;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="title">
+        <div class="h1">💗 Cozy Question Game</div>
+        <div class="sub">Sweet • flirty • kind • tap to score</div>
+      </div>
+      <div class="pillrow">
+        <div class="pill">Holly: <strong id="scoreH">0</strong></div>
+        <div class="pill">Bailey: <strong id="scoreB">0</strong></div>
+      </div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="sparkle"></div>
+      <div class="kicker">
+        <div class="badge"><span class="dot"></span> <span id="qIndex">Question</span></div>
+        <div class="points" id="pointsPill">0 pts</div>
+      </div>
+
+      <div class="qtext" id="qText">Tap “Next” to start 💞</div>
+
+      <div class="meta" id="meta"></div>
+
+      <div class="btnrow">
+        <button class="btnH" id="addH">+ points to Holly ✨</button>
+        <button class="btnB" id="addB">+ points to Bailey ✨</button>
+      </div>
+
+      <div class="controls">
+        <button class="ghost" id="skip">Skip</button>
+        <button class="ghost" id="undo">Undo</button>
+        <button class="next" id="next">Next 🎴</button>
+      </div>
+
+      <div class="tiny" style="margin-top:10px;">
+        Tip: if a question feels too intense for the moment, hit <strong>Skip</strong>.
+        This game is here to be fun, not stressful.
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="toggle">
+        <div class="switch" id="spiceSwitch" role="switch" aria-checked="false" tabindex="0">
+          <div class="knob"></div>
+        </div>
+        <div>
+          <div><strong id="spiceLabel">Cozy Only</strong> (filters spicier questions)</div>
+          <div class="tiny">Toggle on = include everything 🔥</div>
+        </div>
+      </div>
+
+      <div class="tiny">
+        <span id="progress">0 / 0 used</span> ·
+        <span class="danger" id="resetAll">reset</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Question data
+    // tags:
+    // - "spicy": sexual explicit (filtered out in Cozy Only)
+    // - "deep": heavier vulnerability (still allowed; you can skip anytime)
+    // - "light": playful/low-stakes
+    // -----------------------------
+    const QUESTIONS = [
+      { q:"What’s your biggest pet peeve?", pts:5, tags:["light"] },
+      { q:"What was the worst date you’ve ever been on?", pts:10, tags:["light"] },
+      { q:"What’s your love language?", pts:5, tags:["light"] },
+      { q:"What do you think your most attractive feature is and why?", pts:10, tags:["flirty"] },
+      { q:"What does a good pace when dating look like for you?", pts:15, tags:["deep"] },
+      { q:"What was your longest relationship?", pts:10, tags:["deep"] },
+      { q:"Are you a morning person or night owl?", pts:2, tags:["light"] },
+      { q:"What’s one thing you want to accomplish this year?", pts:5, tags:["light"] },
+      { q:"If you could travel anywhere, where would you go?", pts:5, tags:["light"] },
+      { q:"What’s the best concert you’ve ever been to?", pts:5, tags:["light"] },
+      { q:"What’s the best piece of advice you ever received?", pts:10, tags:["deep"] },
+      { q:"Ass or titties?", pts:2, tags:["spicy"] },
+      { q:"What’s your biggest fear?", pts:10, tags:["deep"] },
+      { q:"Who’s someone you admire and why?", pts:5, tags:["deep"] },
+      { q:"What’s one celebrity you’d want to meet and why?", pts:5, tags:["light"] },
+      { q:"What are you naturally talented at?", pts:5, tags:["light"] },
+      { q:"If you could change careers, what would you choose?", pts:10, tags:["deep"] },
+      { q:"What’s your comfort show or movie?", pts:2, tags:["light"] },
+      { q:"How do you like to be cared for when you’re sick?", pts:10, tags:["deep"] },
+      { q:"If you could visit any time period, which and why?", pts:5, tags:["light"] },
+      { q:"How’s your driving?", pts:2, tags:["light"] },
+      { q:"Did you ever sneak out as a kid?", pts:5, tags:["light"] },
+      { q:"What’s a hard dealbreaker for you?", pts:15, tags:["deep"] },
+      { q:"What’s your worst habit?", pts:15, tags:["deep"] },
+      { q:"How would your friends describe you?", pts:10, tags:["deep"] },
+      { q:"How would you describe your sense of humor?", pts:10, tags:["light"] },
+      { q:"What are some things that make you angry?", pts:10, tags:["deep"] },
+      { q:"What is something that warms your heart?", pts:5, tags:["deep"] },
+      { q:"What’s the worst job you’ve ever had?", pts:5, tags:["light"] },
+      { q:"What’s one skill you want to learn?", pts:5, tags:["light"] },
+      { q:"If you could have any superpower, what would it be and why?", pts:2, tags:["light"] },
+      { q:"What’s your walk-up song?", pts:2, tags:["light"] },
+      { q:"What’s one song that speaks your truth?", pts:10, tags:["deep"] },
+      { q:"What do you find attractive?", pts:5, tags:["flirty"] },
+      { q:"What’s your ideal date night?", pts:10, tags:["flirty"] },
+      { q:"What’s your biggest secret?", pts:25, tags:["deep"] },
+      { q:"What’s your immediate skip song?", pts:2, tags:["light"] },
+      { q:"What’s your guilty pleasure?", pts:5, tags:["light"] },
+      { q:"City slicker or country bumpkin?", pts:2, tags:["light"] },
+      { q:"What’s your comfort food?", pts:5, tags:["light"] },
+      { q:"What’s your favorite restaurant or meal?", pts:5, tags:["light"] },
+      { q:"Top, bottom, or switch? Elaborate.", pts:15, tags:["spicy"] },
+      { q:"Do you like to drive or be a passenger?", pts:2, tags:["light"] },
+      { q:"Is there any food you hate?", pts:5, tags:["light"] },
+      { q:"Do you like road trips?", pts:2, tags:["light"] },
+      { q:"What does your ideal relationship look like?", pts:10, tags:["deep"] },
+      { q:"What do you find annoying?", pts:10, tags:["deep"] },
+      { q:"What’s the worst concert you’ve been to?", pts:5, tags:["light"] },
+      { q:"If you were an animal, what would you be and why?", pts:5, tags:["light"] },
+      { q:"What’s your most prized possession?", pts:10, tags:["deep"] },
+      { q:"Do you like to cuddle? Big spoon or little spoon?", pts:5, tags:["flirty"] },
+      { q:"How do you feel about PDA?", pts:5, tags:["flirty"] },
+      { q:"What does support look like for you?", pts:10, tags:["deep"] },
+      { q:"What’s one fun fact about you?", pts:5, tags:["light"] },
+      { q:"What’s the craziest injury you’ve had?", pts:10, tags:["light"] },
+      { q:"Favorite ice cream flavor?", pts:2, tags:["light"] },
+      { q:"Sweet or savory?", pts:2, tags:["light"] },
+      { q:"Best vacation you’ve taken?", pts:5, tags:["light"] },
+      { q:"Favorite memory?", pts:10, tags:["deep"] },
+      { q:"Gifts or experiences?", pts:2, tags:["light"] },
+      { q:"What are your most important values?", pts:15, tags:["deep"] },
+      { q:"Something you want to try but are scared to?", pts:10, tags:["deep"] },
+      { q:"What would your drag name be?", pts:2, tags:["light"] },
+      { q:"Do you like to be led or do you like to take charge?", pts:10, tags:["spicy"] }, // borderline; keep spicy
+      { q:"What’s your best quality?", pts:5, tags:["deep"] },
+      { q:"One thing someone should know before dating you?", pts:15, tags:["deep"] },
+      { q:"Favorite sport / did you play growing up?", pts:2, tags:["light"] },
+      { q:"Have you met someone famous? Who and how?", pts:5, tags:["light"] },
+      { q:"Go-to porn category?", pts:25, tags:["spicy"] },
+      { q:"What stresses you out?", pts:15, tags:["deep"] },
+      { q:"Something you’re thankful for?", pts:10, tags:["deep"] },
+      { q:"What does a typical day look like?", pts:5, tags:["light"] },
+      { q:"Something you want to implement in your life?", pts:10, tags:["deep"] },
+      { q:"Who would you introduce first to someone you’re dating and why?", pts:10, tags:["deep"] },
+      { q:"Why did your last relationship end?", pts:25, tags:["deep"] },
+      { q:"Are you talking to anyone else?", pts:5, tags:["deep"] },
+      { q:"Best birthday you’ve had?", pts:10, tags:["light"] },
+      { q:"Beach or mountains?", pts:2, tags:["light"] },
+      { q:"Something super important to you?", pts:15, tags:["deep"] },
+      { q:"Most meaningful tattoo?", pts:5, tags:["deep"] },
+      { q:"Have you ever hit rock bottom before? What was it?", pts:25, tags:["deep"] },
+      { q:"One thing you’ve learned from life so far?", pts:15, tags:["deep"] },
+      { q:"Favorite conspiracy theory?", pts:2, tags:["light"] },
+      { q:"Celebrity crush?", pts:5, tags:["light"] },
+      { q:"One thing you’d tell your younger self?", pts:10, tags:["deep"] },
+      { q:"One thing you struggle with?", pts:15, tags:["deep"] },
+      { q:"If you had 3 wishes what would they be?", pts:10, tags:["light"] },
+      { q:"Favorite pick up line?", pts:2, tags:["flirty"] },
+      { q:"Biggest accomplishment?", pts:10, tags:["deep"] },
+      { q:"Most embarrassing moment?", pts:15, tags:["light"] },
+      { q:"What grosses you out?", pts:10, tags:["light"] },
+      { q:"If you were gifted a million dollars, what would you do with it?", pts:15, tags:["light"] },
+      { q:"One question you really want to ask me?", pts:15, tags:["deep"] },
+      { q:"Biggest turn on?", pts:15, tags:["spicy"] },
+      { q:"Biggest turn off?", pts:15, tags:["spicy"] },
+      { q:"Biggest unpopular opinion?", pts:10, tags:["light"] },
+      { q:"Who’s your favorite person in the world? Why?", pts:5, tags:["deep"] },
+      { q:"One thing you can’t live without?", pts:5, tags:["light"] },
+      { q:"Where do you see yourself in 5 years?", pts:15, tags:["deep"] },
+      { q:"What do you like most about me?", pts:15, tags:["flirty"] },
+    ];
+
+    const LS_KEY = "cozy_question_game_v1";
+
+    const els = {
+      scoreH: document.getElementById("scoreH"),
+      scoreB: document.getElementById("scoreB"),
+      qIndex: document.getElementById("qIndex"),
+      qText: document.getElementById("qText"),
+      pointsPill: document.getElementById("pointsPill"),
+      meta: document.getElementById("meta"),
+      addH: document.getElementById("addH"),
+      addB: document.getElementById("addB"),
+      next: document.getElementById("next"),
+      skip: document.getElementById("skip"),
+      undo: document.getElementById("undo"),
+      spiceSwitch: document.getElementById("spiceSwitch"),
+      spiceLabel: document.getElementById("spiceLabel"),
+      progress: document.getElementById("progress"),
+      resetAll: document.getElementById("resetAll"),
+    };
+
+    const defaultState = {
+      scoreH: 0,
+      scoreB: 0,
+      includeSpicy: false,
+      usedIds: [],
+      currentId: null,
+      lastAction: null, // { who:"H"/"B", pts:number, qId:number }
+    };
+
+    let state = loadState();
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return { ...structuredClone(defaultState), ...parsed };
+      }catch{
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(LS_KEY, JSON.stringify(state));
+      renderScores();
+      renderProgress();
+    }
+
+    function filteredQuestions(){
+      return QUESTIONS
+        .map((x, idx) => ({ ...x, id: idx }))
+        .filter(x => state.includeSpicy ? true : !x.tags.includes("spicy"));
+    }
+
+    function pickNext(){
+      const pool = filteredQuestions();
+      const used = new Set(state.usedIds);
+      const remaining = pool.filter(q => !used.has(q.id));
+
+      // if exhausted, reset used list (but keep scores)
+      if(remaining.length === 0){
+        state.usedIds = [];
+        state.currentId = null;
+        state.lastAction = null;
+        return pickNext();
+      }
+
+      const next = remaining[Math.floor(Math.random() * remaining.length)];
+      state.currentId = next.id;
+      state.usedIds.push(next.id);
+      state.lastAction = null;
+      saveState();
+      renderCard();
+    }
+
+    function currentQuestion(){
+      if(state.currentId === null) return null;
+      const q = QUESTIONS[state.currentId];
+      return { ...q, id: state.currentId };
+    }
+
+    function award(who){
+      const q = currentQuestion();
+      if(!q) return;
+      const pts = q.pts;
+
+      if(who === "H") state.scoreH += pts;
+      if(who === "B") state.scoreB += pts;
+
+      state.lastAction = { who, pts, qId: q.id };
+      saveState();
+    }
+
+    function undo(){
+      const a = state.lastAction;
+      if(!a) return;
+      if(a.who === "H") state.scoreH = Math.max(0, state.scoreH - a.pts);
+      if(a.who === "B") state.scoreB = Math.max(0, state.scoreB - a.pts);
+      state.lastAction = null;
+      saveState();
+    }
+
+    function renderScores(){
+      els.scoreH.textContent = state.scoreH;
+      els.scoreB.textContent = state.scoreB;
+    }
+
+    function renderProgress(){
+      const pool = filteredQuestions();
+      const used = state.usedIds.length;
+      els.progress.textContent = `${used} / ${pool.length} used`;
+    }
+
+    function renderSpice(){
+      els.spiceSwitch.classList.toggle("on", state.includeSpicy);
+      els.spiceSwitch.setAttribute("aria-checked", state.includeSpicy ? "true" : "false");
+      els.spiceLabel.textContent = state.includeSpicy ? "All Questions 🔥" : "Cozy Only";
+    }
+
+    function renderCard(){
+      renderScores();
+      renderSpice();
+      renderProgress();
+
+      const q = currentQuestion();
+      if(!q){
+        els.qIndex.textContent = "Ready?";
+        els.pointsPill.textContent = "—";
+        els.qText.textContent = "Tap “Next” to start 💞";
+        els.meta.innerHTML = "";
+        els.addH.textContent = "+ points to Holly ✨";
+        els.addB.textContent = "+ points to Bailey ✨";
+        return;
+      }
+
+      // display number within the current filtered deck, not overall id
+      const pool = filteredQuestions();
+      const idxInPool = pool.findIndex(x => x.id === q.id);
+      els.qIndex.textContent = `Question ${idxInPool + 1}`;
+      els.pointsPill.textContent = `${q.pts} pts`;
+      els.qText.textContent = q.q;
+
+      const tagEmoji = (t) => {
+        if(t === "flirty") return "💘";
+        if(t === "deep") return "🫶";
+        if(t === "light") return "✨";
+        if(t === "spicy") return "🔥";
+        return "🏷️";
+      };
+
+      els.meta.innerHTML = "";
+      (q.tags || []).forEach(t => {
+        const span = document.createElement("span");
+        span.className = "tag";
+        span.textContent = `${tagEmoji(t)} ${t}`;
+        els.meta.appendChild(span);
+      });
+
+      els.addH.textContent = `+${q.pts} to Holly ✨`;
+      els.addB.textContent = `+${q.pts} to Bailey ✨`;
+    }
+
+    function resetAll(){
+      const keepSpice = state.includeSpicy;
+      state = structuredClone(defaultState);
+      state.includeSpicy = keepSpice;
+      saveState();
+      renderCard();
+    }
+
+    // Events
+    els.next.addEventListener("click", pickNext);
+    els.skip.addEventListener("click", pickNext);
+
+    els.addH.addEventListener("click", () => award("H"));
+    els.addB.addEventListener("click", () => award("B"));
+
+    els.undo.addEventListener("click", undo);
+
+    function toggleSpicy(){
+      state.includeSpicy = !state.includeSpicy;
+      // when toggling, clear current card so you don't get a "filtered-out" one
+      state.currentId = null;
+      state.usedIds = [];
+      state.lastAction = null;
+      saveState();
+      renderCard();
+    }
+
+    els.spiceSwitch.addEventListener("click", toggleSpicy);
+    els.spiceSwitch.addEventListener("keydown", (e) => {
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        toggleSpicy();
+      }
+    });
+
+    els.resetAll.addEventListener("click", () => {
+      const ok = confirm("Reset scores + progress? (You can’t undo this)");
+      if(ok) resetAll();
+    });
+
+    // Init
+    saveState();
+    renderCard();
+  </script>
+</body>
+</html>
